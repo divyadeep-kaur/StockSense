@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MANAGER
+  STAFF
+}
+
+enum DocStatus {
+  DRAFT
+  WAITING
+  READY
+  DONE
+  CANCELED
+}
+
+enum DocType {
+  RECEIPT
+  DELIVERY
+  TRANSFER
+  ADJUSTMENT
+}
+
+model User {
+  id           String    @id @default(cuid())
+  fullName     String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(MANAGER)
+  createdAt    DateTime  @default(now())
+
+  otps         PasswordResetOtp[]
+  receipts     Receipt[]
+  deliveries   DeliveryOrder[]
+  transfers    InternalTransfer[]
+  adjustments  Adjustment[]
+}
+
+model PasswordResetOtp {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Warehouse {
+  id        String     @id @default(cuid())
+  name      String
+  shortCode String     @unique
+  address   String?
+  createdAt DateTime   @default(now())
+
+  locations Location[]
+}
+
+model Location {
+  id          String   @id @default(cuid())
+  name        String
+  shortCode   String
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  stockItems       StockItem[]
+  receiptsIn       Receipt[]          @relation("ReceiptToLocation")
+  deliveriesFrom   DeliveryOrder[]    @relation("DeliveryFromLocation")
+  transfersFrom    InternalTransfer[] @relation("TransferFromLocation")
+  transfersTo      InternalTransfer[] @relation("TransferToLocation")
+  adjustments      Adjustment[]
+  movesFrom        StockMove[]        @relation("MoveFromLocation")
+  movesTo          StockMove[]        @relation("MoveToLocation")
+
+  @@unique([warehouseId, shortCode])
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  sku           String   @unique
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  uom           String   @default("pcs")
+  costPerUnit   Float?
+  minStockQty   Float    @default(0)
+  reorderQty    Float    @default(0)
+  lowStockAlert Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  stockItems      StockItem[]
+  receiptLines    ReceiptLine[]
+  deliveryLines   DeliveryLine[]
+  transferLines   TransferLine[]
+  adjustments     Adjustment[]
+  moves           StockMove[]
+}
+
+model StockItem {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  locationId String
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  onHand     Float    @default(0)
+  reserved   Float    @default(0)
+
+  @@unique([productId, locationId])
+}
+
+model StockMove {
+  id             String    @id @default(cuid())
+  date           DateTime  @default(now())
+  docType        DocType
+  reference      String
+  productId      String
+  product        Product   @relation(fields: [productId], references: [id])
+  quantity       Float
+  fromLocationId String?
+  fromLocation   Location? @relation("MoveFromLocation", fields: [fromLocationId], references: [id])
+  toLocationId   String?
+  toLocation     Location? @relation("MoveToLocation", fields: [toLocationId], references: [id])
+  contact        String?
+  status         DocStatus @default(DONE)
+
+  @@index([productId])
+  @@index([date])
+}
+
+model Receipt {
+  id            String    @id @default(cuid())
+  reference     String    @unique
+  supplierName  String
+  toLocationId  String
+  toLocation    Location  @relation("ReceiptToLocation", fields: [toLocationId], references: [id])
+  responsibleId String
+  responsible   User      @relation(fields: [responsibleId], references: [id])
+  scheduleDate  DateTime  @default(now())
+  status        DocStatus @default(DRAFT)
+  createdAt     DateTime  @default(now())
+  validatedAt   DateTime?
+
+  lines ReceiptLine[]
+}
+
+model ReceiptLine {
+  id        String  @id @default(cuid())
+  receiptId String
+  receipt   Receipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Float
+}
+
+model DeliveryOrder {
+  id              String    @id @default(cuid())
+  reference       String    @unique
+  customerName    String
+  deliveryAddress String?
+  operationType   String?
+  fromLocationId  String
+  fromLocation    Location  @relation("DeliveryFromLocation", fields: [fromLocationId], references: [id])
+  responsibleId   String
+  responsible     User      @relation(fields: [responsibleId], references: [id])
+  scheduleDate    DateTime  @default(now())
+  status          DocStatus @default(DRAFT)
+  createdAt       DateTime  @default(now())
+  validatedAt     DateTime?
+
+  lines DeliveryLine[]
+}
+
+model DeliveryLine {
+  id         String        @id @default(cuid())
+  deliveryId String
+  delivery   DeliveryOrder @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product       @relation(fields: [productId], references: [id])
+  quantity   Float
+}
+
+model InternalTransfer {
+  id             String    @id @default(cuid())
+  reference      String    @unique
+  fromLocationId String
+  fromLocation   Location  @relation("TransferFromLocation", fields: [fromLocationId], references: [id])
+  toLocationId   String
+  toLocation     Location  @relation("TransferToLocation", fields: [toLocationId], references: [id])
+  responsibleId  String
+  responsible    User      @relation(fields: [responsibleId], references: [id])
+  scheduleDate   DateTime  @default(now())
+  status         DocStatus @default(DRAFT)
+  createdAt      DateTime  @default(now())
+  validatedAt    DateTime?
+
+  lines TransferLine[]
+}
+
+model TransferLine {
+  id         String            @id @default(cuid())
+  transferId String
+  transfer   InternalTransfer  @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product           @relation(fields: [productId], references: [id])
+  quantity   Float
+}
+
+model Adjustment {
+  id            String    @id @default(cuid())
+  reference     String    @unique
+  productId     String
+  product       Product   @relation(fields: [productId], references: [id])
+  locationId    String
+  location      Location  @relation(fields: [locationId], references: [id])
+  recordedQty   Float
+  countedQty    Float
+  responsibleId String
+  responsible   User      @relation(fields: [responsibleId], references: [id])
+  status        DocStatus @default(DONE)
+  date          DateTime  @default(now())
+}
