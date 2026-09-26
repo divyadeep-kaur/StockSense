@@ -10,18 +10,25 @@ export default function SignUpPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
 
     const res = await fetch("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fullName, email, password }),
+      body: JSON.stringify({ fullName, email, password, confirmPassword }),
     });
     const data = await res.json();
 
@@ -51,7 +58,7 @@ export default function SignUpPage() {
           />
         </div>
         <div>
-          <Label htmlFor="email">Work email</Label>
+          <Label htmlFor="email">Email Id</Label>
           <Input
             id="email"
             type="email"
@@ -68,7 +75,18 @@ export default function SignUpPage() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="At least 8 characters"
+            placeholder="8+ chars, upper, lower & special character"
+            minLength={8}
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="confirmPassword">Re-enter Password</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             minLength={8}
             required
           />

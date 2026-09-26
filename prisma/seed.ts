@@ -194,7 +194,12 @@ async function main() {
   const user = await prisma.user.upsert({
     where: { email: "manager@stocksense.dev" },
     update: {},
-    create: { fullName: "Demo Manager", email: "manager@stocksense.dev", passwordHash, role: "MANAGER" },
+    create: {
+      fullName: "Demo Manager",
+      email: "manager@stocksense.dev",
+      passwordHash,
+      role: "MANAGER",
+    },
   });
 
   const warehouse = await prisma.warehouse.upsert({

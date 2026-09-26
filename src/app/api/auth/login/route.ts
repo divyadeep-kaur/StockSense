@@ -8,7 +8,7 @@ const schema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-const INVALID_CREDENTIALS = "Incorrect email or password";
+const INVALID_CREDENTIALS = "Invalid Login Id or Password";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);

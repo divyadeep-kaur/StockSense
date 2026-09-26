@@ -40,7 +40,7 @@ export default function LoginPage() {
 
       <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
         <div>
-          <Label htmlFor="email">Email or username</Label>
+          <Label htmlFor="email">Login Id</Label>
           <Input
             id="email"
             type="email"
