@@ -57,12 +57,12 @@ async function main() {
   }
 
   const products = [
-    { name: "Steel Rods", sku: "SR001", category: "Raw Material", uom: "kg", cost: 120, min: 100, reorder: 200 },
-    { name: "Chairs", sku: "CH001", category: "Finished Goods", uom: "pcs", cost: 45, min: 20, reorder: 50 },
-    { name: "Tables", sku: "TB001", category: "Finished Goods", uom: "pcs", cost: 90, min: 10, reorder: 20 },
-    { name: "Desk", sku: "DESK001", category: "Finished Goods", uom: "pcs", cost: 150, min: 15, reorder: 30 },
-    { name: "Screws", sku: "SC001", category: "Components", uom: "pcs", cost: 1, min: 500, reorder: 1000 },
-    { name: "Paint", sku: "PT001", category: "Raw Material", uom: "ltr", cost: 30, min: 10, reorder: 25 },
+    { name: "Steel Rods", sku: "SR001", category: "Raw Material", uom: "kg", cost: 120, min: 100, reorder: 200, alert: false },
+    { name: "Chairs", sku: "CH001", category: "Finished Goods", uom: "pcs", cost: 45, min: 20, reorder: 50, alert: false },
+    { name: "Tables", sku: "TB001", category: "Finished Goods", uom: "pcs", cost: 90, min: 25, reorder: 20, alert: true },
+    { name: "Desk", sku: "DESK001", category: "Finished Goods", uom: "pcs", cost: 150, min: 15, reorder: 30, alert: false },
+    { name: "Screws", sku: "SC001", category: "Components", uom: "pcs", cost: 1, min: 500, reorder: 1000, alert: false },
+    { name: "Paint", sku: "PT001", category: "Raw Material", uom: "ltr", cost: 30, min: 10, reorder: 25, alert: true },
   ];
 
   for (const p of products) {

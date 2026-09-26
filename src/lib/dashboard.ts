@@ -39,6 +39,24 @@ export async function getDashboardKpis() {
   };
 }
 
+export async function getLowStockAlerts(limit = 5) {
+  const products = await prisma.product.findMany({
+    where: { lowStockAlert: true },
+    select: { id: true, name: true, sku: true, minStockQty: true, stockItems: { select: { onHand: true } } },
+  });
+
+  return products
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      sku: p.sku,
+      totalOnHand: p.stockItems.reduce((sum, s) => sum + s.onHand, 0),
+      minStockQty: p.minStockQty,
+    }))
+    .filter((p) => p.totalOnHand <= p.minStockQty)
+    .slice(0, limit);
+}
+
 const DOC_TYPE_LABEL: Record<string, string> = {
   RECEIPT: "Receipt",
   DELIVERY: "Delivery",

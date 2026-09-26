@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
-import { getDashboardKpis, getRecentOperations } from "@/lib/dashboard";
+import { getDashboardKpis, getLowStockAlerts, getRecentOperations } from "@/lib/dashboard";
 import { KpiCard } from "@/components/kpi-card";
 import { DonutChart } from "@/components/donut-chart";
 import { Card, StatusBadge } from "@/components/ui";
@@ -14,7 +14,11 @@ function formatDate(date: Date) {
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
-  const [kpis, recentOps] = await Promise.all([getDashboardKpis(), getRecentOperations()]);
+  const [kpis, recentOps, lowStockAlerts] = await Promise.all([
+    getDashboardKpis(),
+    getRecentOperations(),
+    getLowStockAlerts(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -24,6 +28,22 @@ export default async function DashboardPage() {
           What&apos;s happening with your inventory today, {user?.fullName.split(" ")[0]}.
         </p>
       </div>
+
+      {lowStockAlerts.length > 0 && (
+        <div className="rounded-xl border border-warning-soft bg-warning-soft/60 p-4">
+          <p className="text-sm font-medium text-warning">Low stock alerts</p>
+          <ul className="mt-2 space-y-1 text-sm text-warning">
+            {lowStockAlerts.map((p) => (
+              <li key={p.id}>
+                <Link href={`/products/${p.id}`} className="hover:underline">
+                  {p.name} ({p.sku})
+                </Link>{" "}
+                — {p.totalOnHand} left, minimum is {p.minStockQty}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Total Products" value={kpis.totalProducts} icon={<BoxIcon />} />
