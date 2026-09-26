@@ -1,10 +1,5 @@
 import { Logo } from "@/components/logo";
 
-const TEAM = [
-  { name: "Divyadeep", email: "Officialdivyadeep@gmail.com" },
-  { name: "Jashanpreet Singh", email: "jashanpreetsing78147@gmail.com" },
-];
-
 const COLUMNS = [
   {
     title: "Product",
@@ -16,19 +11,17 @@ const COLUMNS = [
     ],
   },
   {
-    title: "Company",
-    links: [
-      { label: "About", href: "#about" },
-      { label: "Contact", href: "#about" },
-    ],
-  },
-  {
     title: "Legal",
     links: [
       { label: "Privacy", href: "#" },
       { label: "Terms", href: "#" },
     ],
   },
+];
+
+const TEAM = [
+  { name: "Divyadeep", email: "Officialdivyadeep@gmail.com" },
+  { name: "Jashanpreet Singh", email: "jashanpreetsing78147@gmail.com" },
 ];
 
 export function Footer() {
@@ -40,7 +33,7 @@ export function Footer() {
           <p className="mt-3 text-sm text-muted">Your inventory, in control.</p>
         </div>
 
-        {COLUMNS.map((col) => (
+        {COLUMNS.slice(0, 1).map((col) => (
           <div key={col.title}>
             <p className="text-sm font-semibold text-foreground">{col.title}</p>
             <ul className="mt-3 space-y-2">
@@ -54,21 +47,40 @@ export function Footer() {
             </ul>
           </div>
         ))}
-      </div>
 
-      <div className="mx-auto mt-10 w-full max-w-6xl border-t border-border px-6 pt-6">
-        <p className="text-sm font-semibold text-foreground">Team</p>
-        <div className="mt-3 flex flex-wrap gap-x-8 gap-y-2">
-          {TEAM.map((member) => (
-            <a
-              key={member.email}
-              href={`mailto:${member.email}`}
-              className="text-sm text-muted hover:text-foreground"
-            >
-              <span className="font-medium text-foreground">{member.name}</span> — {member.email}
-            </a>
-          ))}
+        <div>
+          <p className="text-sm font-semibold text-foreground">About</p>
+          <ul className="mt-3 space-y-2">
+            <li>
+              <a href="#about" className="text-sm text-muted hover:text-foreground">
+                About
+              </a>
+            </li>
+            <li className="text-sm font-medium text-foreground">Contact</li>
+            {TEAM.map((member) => (
+              <li key={member.email}>
+                <a href={`mailto:${member.email}`} className="text-sm text-muted hover:text-foreground">
+                  {member.name} — {member.email}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
+
+        {COLUMNS.slice(1).map((col) => (
+          <div key={col.title}>
+            <p className="text-sm font-semibold text-foreground">{col.title}</p>
+            <ul className="mt-3 space-y-2">
+              {col.links.map((link) => (
+                <li key={link.label}>
+                  <a href={link.href} className="text-sm text-muted hover:text-foreground">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
 
       <div className="mx-auto mt-6 w-full max-w-6xl border-t border-border px-6 pt-6 text-sm text-muted">
