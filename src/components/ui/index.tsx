@@ -88,6 +88,21 @@ export function StatusBadge({ status }: { status: string }) {
   );
 }
 
+const STOCK_STATUS_STYLES: Record<string, { label: string; className: string }> = {
+  IN_STOCK: { label: "In Stock", className: "bg-success-soft text-success" },
+  LOW_STOCK: { label: "Low Stock", className: "bg-warning-soft text-warning" },
+  OUT_OF_STOCK: { label: "Out of Stock", className: "bg-danger-soft text-danger" },
+};
+
+export function StockStatusBadge({ status }: { status: string }) {
+  const style = STOCK_STATUS_STYLES[status] ?? STOCK_STATUS_STYLES.IN_STOCK;
+  return (
+    <span className={cx("inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium", style.className)}>
+      {style.label}
+    </span>
+  );
+}
+
 export function EmptyState({ title, description }: { title: string; description?: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border py-16 text-center">
