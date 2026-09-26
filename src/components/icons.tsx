@@ -135,6 +135,48 @@ export const PlusIcon = (p: SVGProps<SVGSVGElement>) => (
   </Svg>
 );
 
+export const SparkleIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p} strokeWidth="1.5">
+    <path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18" />
+    <circle cx="12" cy="12" r="2.5" />
+  </Svg>
+);
+
+export const PlayIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p} fill="currentColor">
+    <path d="M8 5.14v13.72a1 1 0 0 0 1.5.87l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14Z" />
+  </Svg>
+);
+
+export const MenuIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M4 7h16M4 12h16M4 17h16" />
+  </Svg>
+);
+
+export const XIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M6 6l12 12M18 6 6 18" />
+  </Svg>
+);
+
+export const AlertTriangleIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M12 3 2 20h20L12 3Z" />
+    <path d="M12 10v4M12 17h.01" />
+  </Svg>
+);
+
+export const ForkliftIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <rect x="3" y="11" width="8" height="6" rx="1" />
+    <circle cx="6" cy="19" r="1.6" />
+    <circle cx="15" cy="19" r="1.6" />
+    <path d="M11 13h4M15 6v11M15 6h4l1 4h-2" />
+    <path d="M15 10h5" />
+  </Svg>
+);
+
 export const DollarIcon = (p: SVGProps<SVGSVGElement>) => (
   <Svg {...p}>
     <path d="M12 2v20" />
