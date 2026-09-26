@@ -22,7 +22,7 @@ export function Hero() {
           <h1 className="mt-6 text-5xl font-semibold tracking-tight text-foreground sm:text-6xl">
             Your Inventory,
             <br />
-            <span className="bg-gradient-to-r from-accent to-indigo-400 bg-clip-text text-transparent">In Control.</span>
+            <span className="bg-gradient-to-r from-accent to-sky-400 bg-clip-text text-transparent">In Control.</span>
           </h1>
 
           <p className="mt-5 text-lg font-medium text-foreground">Track. Manage. Move. All in one place.</p>

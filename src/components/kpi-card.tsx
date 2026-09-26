@@ -23,8 +23,10 @@ export function KpiCard({
   };
 
   return (
-    <Card className="flex items-center gap-4 p-5">
-      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${toneStyles[tone]}`}>
+    <Card className="group flex items-center gap-4 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10">
+      <div
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 ${toneStyles[tone]}`}
+      >
         {icon}
       </div>
       <div>

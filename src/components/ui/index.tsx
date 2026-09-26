@@ -14,11 +14,11 @@ export function Button({
   size?: "sm" | "md";
 }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-150 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
   const sizes = { sm: "px-3 py-1.5 text-sm", md: "px-4 py-2.5 text-sm" };
   const variants = {
-    primary: "bg-accent text-accent-foreground hover:bg-accent/90",
-    secondary: "bg-surface border border-border text-foreground hover:bg-background",
+    primary: "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90 hover:shadow-md hover:shadow-accent/20",
+    secondary: "bg-surface border border-border text-foreground hover:bg-background hover:border-accent/40",
     ghost: "text-foreground hover:bg-background",
     danger: "bg-danger text-white hover:bg-danger/90",
   };
