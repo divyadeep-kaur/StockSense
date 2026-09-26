@@ -22,9 +22,14 @@ export async function POST(request: Request) {
   const user = await prisma.user.findUnique({ where: { email } });
 
   // Always respond the same way so this endpoint can't be used to enumerate
-  // registered emails.
+  // registered emails — a delivery failure below is logged, not surfaced,
+  // for the same reason.
   if (user) {
-    await issuePasswordOtp(user.id, user.email);
+    try {
+      await issuePasswordOtp(user.id, user.email);
+    } catch (err) {
+      console.error(`[StockSense] Failed to send OTP email to ${user.email}:`, err);
+    }
   }
 
   return NextResponse.json({ ok: true });

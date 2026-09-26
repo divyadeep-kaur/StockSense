@@ -27,12 +27,19 @@ export default function ForgotPasswordPage() {
   async function requestOtp() {
     setError(null);
     setLoading(true);
-    await fetch("/api/auth/forgot-password", {
+    const res = await fetch("/api/auth/forgot-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
     setLoading(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      setError(data?.error ?? "Something went wrong. Please try again.");
+      return;
+    }
+
     setStep("verify");
     setCooldown(RESEND_COOLDOWN_SECONDS);
   }
@@ -95,6 +102,8 @@ export default function ForgotPasswordPage() {
               required
             />
           </div>
+          <FieldError>{error}</FieldError>
+
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Sending..." : "Send OTP"}
           </Button>
@@ -112,7 +121,10 @@ export default function ForgotPasswordPage() {
   return (
     <Card className="p-8">
       <h1 className="text-xl font-semibold text-foreground">Reset your password</h1>
-      <p className="mt-1 text-sm text-muted">Enter the 6-digit code sent to your email</p>
+      <p className="mt-1 text-sm text-muted">
+        If <span className="font-medium text-foreground">{email}</span> is registered, a 6-digit code was just sent
+        to it.
+      </p>
 
       <form className="mt-6 space-y-5" onSubmit={verifyAndReset}>
         <div className="flex justify-between gap-2">
