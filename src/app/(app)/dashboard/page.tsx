@@ -212,25 +212,25 @@ export default async function DashboardPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="text-muted">
-                <th className="pb-2 font-medium">Type</th>
-                <th className="pb-2 font-medium">Item</th>
-                <th className="pb-2 font-medium">Quantity</th>
-                <th className="pb-2 font-medium">Location</th>
-                <th className="pb-2 font-medium">Status</th>
+                <th className="pb-2 pr-3 font-medium">Type</th>
+                <th className="pb-2 pr-3 font-medium">Item</th>
+                <th className="pb-2 pr-3 font-medium">Quantity</th>
+                <th className="pb-2 pr-3 font-medium">Location</th>
+                <th className="pb-2 pr-3 font-medium">Status</th>
                 <th className="pb-2 font-medium">Date</th>
               </tr>
             </thead>
             <tbody>
               {recentOps.map((op) => (
                 <tr key={op.id} className="border-t border-border">
-                  <td className="py-2.5 text-foreground">{op.type}</td>
-                  <td className="py-2.5 text-foreground">{op.item}</td>
-                  <td className={`py-2.5 ${op.quantity < 0 ? "text-danger" : "text-success"}`}>
+                  <td className="py-2.5 pr-3 text-foreground">{op.type}</td>
+                  <td className="py-2.5 pr-3 text-foreground">{op.item}</td>
+                  <td className={`py-2.5 pr-3 ${op.quantity < 0 ? "text-danger" : "text-success"}`}>
                     {op.quantity > 0 ? "+" : ""}
                     {op.quantity}
                   </td>
-                  <td className="py-2.5 text-muted">{op.location}</td>
-                  <td className="py-2.5">
+                  <td className="py-2.5 pr-3 text-muted">{op.location}</td>
+                  <td className="py-2.5 pr-3">
                     <StatusBadge status={op.status} />
                   </td>
                   <td className="py-2.5 text-muted">{formatDate(op.date)}</td>
@@ -253,9 +253,9 @@ export default async function DashboardPage() {
             centerLabel="Total Products"
             centerValue={kpis.levels.total}
             segments={[
-              { label: "In Stock", value: kpis.levels.inStock, color: "var(--success)" },
-              { label: "Low Stock", value: kpis.levels.lowStock, color: "var(--warning)" },
-              { label: "Out of Stock", value: kpis.levels.outOfStock, color: "var(--danger)" },
+              { label: "In Stock", value: kpis.levels.inStock, color: "var(--accent)" },
+              { label: "Low Stock", value: kpis.levels.lowStock, color: "#818CF8" },
+              { label: "Out of Stock", value: kpis.levels.outOfStock, color: "#C7D2FE" },
             ]}
           />
         </Card>
