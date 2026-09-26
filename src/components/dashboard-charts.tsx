@@ -81,6 +81,7 @@ export function MovementAreaChart({ data }: { data: TrendPoint[] }) {
 }
 
 export function WeekdayBarChart({ data }: { data: { label: string; count: number }[] }) {
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const max = Math.max(1, ...data.map((d) => d.count));
   const peakIndex = data.reduce((best, d, i) => (d.count > data[best].count ? i : best), 0);
 
@@ -89,16 +90,28 @@ export function WeekdayBarChart({ data }: { data: { label: string; count: number
       {data.map((d, i) => {
         const heightPct = (d.count / max) * 100;
         const isPeak = i === peakIndex && d.count > 0;
+        const showBadge = isPeak || hoverIndex === i;
         return (
-          <div key={d.label} className="flex flex-1 flex-col items-center gap-2">
+          <div
+            key={d.label}
+            className="flex flex-1 flex-col items-center gap-2"
+            onMouseEnter={() => setHoverIndex(i)}
+            onMouseLeave={() => setHoverIndex(null)}
+          >
             <div className="relative flex h-28 w-full items-end justify-center">
-              {isPeak && (
-                <span className="absolute -top-6 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-white">
+              {showBadge && (
+                <span
+                  className={`absolute -top-6 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    isPeak ? "bg-accent text-white" : "bg-accent-soft text-accent"
+                  }`}
+                >
                   {d.count}
                 </span>
               )}
               <div
-                className={`w-full max-w-[28px] rounded-t-md ${isPeak ? "bg-accent" : "bg-accent-soft"}`}
+                className={`w-full max-w-[28px] cursor-pointer rounded-t-md transition-all duration-150 ${
+                  isPeak ? "bg-accent" : hoverIndex === i ? "bg-accent/60" : "bg-accent-soft"
+                }`}
                 style={{ height: `${Math.max(heightPct, 4)}%` }}
               />
             </div>
@@ -177,6 +190,7 @@ function hashToUnitInterval(i: number) {
 }
 
 export function LocationHexGrid({ intensity }: { intensity: number }) {
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const cols = 7;
   const rows = 4;
   const cells = Array.from({ length: cols * rows }, (_, i) => {
@@ -185,20 +199,24 @@ export function LocationHexGrid({ intensity }: { intensity: number }) {
   });
 
   return (
-    <svg viewBox="0 0 380 220" className="w-full">
+    <svg viewBox="0 0 380 220" className="w-full overflow-visible">
       {cells.map((value, i) => {
         const col = i % cols;
         const row = Math.floor(i / cols);
         const x = col * 44 + (row % 2 === 1 ? 22 : 0);
         const y = row * 40;
-        const opacity = 0.15 + value * 0.85;
+        const opacity = hoverIndex === i ? 1 : 0.15 + value * 0.85;
+        const scale = hoverIndex === i ? 0.86 : 0.75;
         return (
           <polygon
             key={i}
             points={HEX_POINTS}
-            transform={`translate(${x},${y}) scale(0.75)`}
+            transform={`translate(${x},${y}) scale(${scale})`}
             fill="var(--accent)"
             opacity={opacity}
+            className="cursor-pointer transition-all duration-150 ease-out"
+            onMouseEnter={() => setHoverIndex(i)}
+            onMouseLeave={() => setHoverIndex(null)}
           />
         );
       })}

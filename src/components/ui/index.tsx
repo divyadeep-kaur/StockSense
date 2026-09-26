@@ -103,6 +103,10 @@ export function StockStatusBadge({ status }: { status: string }) {
   );
 }
 
+export function Skeleton({ className }: { className?: string }) {
+  return <div className={cx("animate-pulse-soft rounded-lg bg-border/70", className)} />;
+}
+
 export function EmptyState({ title, description }: { title: string; description?: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border py-16 text-center">
