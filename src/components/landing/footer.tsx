@@ -1,5 +1,10 @@
 import { Logo } from "@/components/logo";
 
+const TEAM = [
+  { name: "Divyadeep", email: "Officialdivyadeep@gmail.com" },
+  { name: "Jashanpreet Singh", email: "jashanpreetsing78147@gmail.com" },
+];
+
 const COLUMNS = [
   {
     title: "Product",
@@ -51,7 +56,22 @@ export function Footer() {
         ))}
       </div>
 
-      <div className="mx-auto mt-10 w-full max-w-6xl border-t border-border px-6 pt-6 text-sm text-muted">
+      <div className="mx-auto mt-10 w-full max-w-6xl border-t border-border px-6 pt-6">
+        <p className="text-sm font-semibold text-foreground">Team</p>
+        <div className="mt-3 flex flex-wrap gap-x-8 gap-y-2">
+          {TEAM.map((member) => (
+            <a
+              key={member.email}
+              href={`mailto:${member.email}`}
+              className="text-sm text-muted hover:text-foreground"
+            >
+              <span className="font-medium text-foreground">{member.name}</span> — {member.email}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <div className="mx-auto mt-6 w-full max-w-6xl border-t border-border px-6 pt-6 text-sm text-muted">
         © {new Date().getFullYear()} StockSense. All rights reserved.
       </div>
     </footer>
