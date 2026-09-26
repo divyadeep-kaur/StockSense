@@ -21,7 +21,15 @@ import {
   WeeklyTrendLine,
 } from "@/components/dashboard-charts";
 import { Card, StatusBadge } from "@/components/ui";
-import { ArrowUpRightIcon, BoxIcon, InboxIcon, SlidersIcon, TransferIcon, TruckIcon } from "@/components/icons";
+import {
+  ArrowUpRightIcon,
+  BellIcon,
+  BoxIcon,
+  InboxIcon,
+  SlidersIcon,
+  TransferIcon,
+  TruckIcon,
+} from "@/components/icons";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(
@@ -56,18 +64,23 @@ export default async function DashboardPage() {
       </div>
 
       {lowStockAlerts.length > 0 && (
-        <div className="rounded-xl border border-warning-soft bg-warning-soft/60 p-4">
-          <p className="text-sm font-medium text-warning">Low stock alerts</p>
-          <ul className="mt-2 space-y-1 text-sm text-warning">
-            {lowStockAlerts.map((p) => (
-              <li key={p.id}>
-                <Link href={`/products/${p.id}`} className="hover:underline">
-                  {p.name} ({p.sku})
-                </Link>{" "}
-                — {p.totalOnHand} left, minimum is {p.minStockQty}
-              </li>
-            ))}
-          </ul>
+        <div className="flex gap-3 rounded-2xl border border-accent-soft bg-accent-soft/60 p-4 backdrop-blur-sm">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+            <BellIcon className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Low stock alerts</p>
+            <ul className="mt-1.5 space-y-1 text-sm">
+              {lowStockAlerts.map((p) => (
+                <li key={p.id} className="text-muted">
+                  <Link href={`/products/${p.id}`} className="font-medium text-accent hover:underline">
+                    {p.name} ({p.sku})
+                  </Link>{" "}
+                  — {p.totalOnHand} left, minimum is {p.minStockQty}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 
