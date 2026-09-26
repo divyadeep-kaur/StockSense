@@ -1,8 +1,8 @@
-import { BellIcon, SearchIcon } from "@/components/icons";
+import { SearchIcon } from "@/components/icons";
+import { NotificationMenu } from "@/components/notification-menu";
+import { ProfileMenu } from "@/components/profile-menu";
 
-export function Topbar({ userName }: { userName: string }) {
-  const initial = userName.trim().charAt(0).toUpperCase() || "U";
-
+export function Topbar({ fullName, email, role }: { fullName: string; email: string; role: string }) {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between gap-4 rounded-2xl border border-border bg-surface px-6 shadow-sm">
       <div className="relative w-full max-w-md">
@@ -15,12 +15,8 @@ export function Topbar({ userName }: { userName: string }) {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="relative text-muted hover:text-foreground">
-          <BellIcon className="h-5 w-5" />
-        </button>
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-sm font-semibold text-accent">
-          {initial}
-        </div>
+        <NotificationMenu />
+        <ProfileMenu fullName={fullName} email={email} role={role} />
       </div>
     </header>
   );

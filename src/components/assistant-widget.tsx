@@ -2,14 +2,21 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SparkleIcon, XIcon, SendIcon } from "@/components/icons";
+import { useAssistant } from "@/components/assistant-context";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const GREETING =
   "Hi! I'm the StockSense assistant. Ask me about stock levels, pending receipts or deliveries, low-stock items, or how a feature works.";
 
+const SUGGESTED_QUESTIONS = [
+  "Which products need reordering?",
+  "What's low in stock?",
+  "Show pending deliveries",
+];
+
 export function AssistantWidget() {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen } = useAssistant();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -20,8 +27,8 @@ export function AssistantWidget() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading, open]);
 
-  async function send() {
-    const content = input.trim();
+  async function send(overrideText?: string) {
+    const content = (overrideText ?? input).trim();
     if (!content || loading) return;
 
     const nextHistory = [...messages, { role: "user" as const, content }];
@@ -49,7 +56,7 @@ export function AssistantWidget() {
   return (
     <>
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 flex h-[520px] w-[380px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
+        <div className="animate-panel-slide-in fixed bottom-24 right-6 z-50 flex h-[calc(100vh-7rem)] max-h-[520px] w-[380px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xl sm:right-6 max-sm:inset-x-4 max-sm:bottom-4 max-sm:h-[calc(100vh-2rem)] max-sm:w-auto">
           <div className="flex items-center justify-between gap-2 border-b border-border bg-accent-soft px-4 py-3">
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
@@ -71,6 +78,19 @@ export function AssistantWidget() {
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
             <Bubble role="assistant" content={GREETING} />
+            {messages.length === 0 && (
+              <div className="flex flex-wrap gap-2">
+                {SUGGESTED_QUESTIONS.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => send(q)}
+                    className="rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:border-accent/50 hover:text-accent"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            )}
             {messages.map((m, i) => (
               <Bubble key={i} role={m.role} content={m.content} />
             ))}
@@ -97,7 +117,7 @@ export function AssistantWidget() {
               className="max-h-24 flex-1 resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-accent/40"
             />
             <button
-              onClick={send}
+              onClick={() => send()}
               disabled={loading || !input.trim()}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground disabled:opacity-40"
               aria-label="Send message"
@@ -108,13 +128,15 @@ export function AssistantWidget() {
         </div>
       )}
 
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-accent/30 transition-transform hover:scale-105 active:scale-95"
-        aria-label={open ? "Close assistant" : "Open assistant"}
-      >
-        {open ? <XIcon className="h-5 w-5" /> : <SparkleIcon className="h-5 w-5" />}
-      </button>
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lg shadow-accent/30 transition-transform hover:scale-105 active:scale-95"
+          aria-label="Open assistant"
+        >
+          <SparkleIcon className="h-5 w-5" />
+        </button>
+      )}
     </>
   );
 }

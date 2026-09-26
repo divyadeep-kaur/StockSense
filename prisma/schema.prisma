@@ -28,18 +28,37 @@ enum DocType {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  fullName     String
-  email        String    @unique
-  passwordHash String
-  role         Role      @default(MANAGER)
-  createdAt    DateTime  @default(now())
+  id                 String    @id @default(cuid())
+  fullName           String
+  email              String    @unique
+  passwordHash       String
+  role               Role      @default(MANAGER)
+  createdAt          DateTime  @default(now())
 
-  otps         PasswordResetOtp[]
-  receipts     Receipt[]
-  deliveries   DeliveryOrder[]
-  transfers    InternalTransfer[]
-  adjustments  Adjustment[]
+  notifyLowStock     Boolean   @default(true)
+  compactTables      Boolean   @default(false)
+  defaultWarehouseId String?
+  defaultWarehouse   Warehouse? @relation(fields: [defaultWarehouseId], references: [id])
+
+  otps               PasswordResetOtp[]
+  receipts           Receipt[]
+  deliveries         DeliveryOrder[]
+  transfers          InternalTransfer[]
+  adjustments        Adjustment[]
+  notificationStates NotificationState[]
+}
+
+model NotificationState {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String
+  read      Boolean  @default(false)
+  dismissed Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, key])
+  @@index([userId])
 }
 
 model PasswordResetOtp {
@@ -61,7 +80,8 @@ model Warehouse {
   address   String?
   createdAt DateTime   @default(now())
 
-  locations Location[]
+  locations       Location[]
+  defaultForUsers User[]
 }
 
 model Location {

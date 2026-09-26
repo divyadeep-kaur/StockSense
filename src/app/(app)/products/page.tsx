@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 import { listProductsWithStock } from "@/lib/products";
 import { Button, Card, CheckboxFilterGroup, EmptyState, StockStatusBadge } from "@/components/ui";
 import { PlusIcon, SearchIcon } from "@/components/icons";
@@ -12,10 +13,12 @@ export default async function ProductsPage({
 }) {
   const params = await searchParams;
   const categoryIds = toArray(params.category);
-  const [products, categories] = await Promise.all([
+  const [products, categories, user] = await Promise.all([
     listProductsWithStock({ search: params.q, categoryIds }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
+    getCurrentUser(),
   ]);
+  const cellPad = user?.compactTables ? "px-5 py-1.5" : "px-5 py-3";
 
   return (
     <div className="space-y-6">
@@ -64,27 +67,27 @@ export default async function ProductsPage({
           <table className="w-full text-left text-sm">
             <thead className="bg-background text-muted">
               <tr>
-                <th className="px-5 py-3 font-medium">Name</th>
-                <th className="px-5 py-3 font-medium">SKU</th>
-                <th className="px-5 py-3 font-medium">Category</th>
-                <th className="px-5 py-3 font-medium">Unit</th>
-                <th className="px-5 py-3 font-medium">Available Stock</th>
-                <th className="px-5 py-3 font-medium">Status</th>
+                <th className={`${cellPad} font-medium`}>Name</th>
+                <th className={`${cellPad} font-medium`}>SKU</th>
+                <th className={`${cellPad} font-medium`}>Category</th>
+                <th className={`${cellPad} font-medium`}>Unit</th>
+                <th className={`${cellPad} font-medium`}>Available Stock</th>
+                <th className={`${cellPad} font-medium`}>Status</th>
               </tr>
             </thead>
             <tbody>
               {products.map((product) => (
                 <tr key={product.id} className="border-t border-border hover:bg-background">
-                  <td className="px-5 py-3">
+                  <td className={cellPad}>
                     <Link href={`/products/${product.id}`} className="font-medium text-foreground hover:text-accent">
                       {product.name}
                     </Link>
                   </td>
-                  <td className="px-5 py-3 text-muted">{product.sku}</td>
-                  <td className="px-5 py-3 text-muted">{product.category?.name ?? "-"}</td>
-                  <td className="px-5 py-3 text-muted">{product.uom}</td>
-                  <td className="px-5 py-3 text-foreground">{product.totalOnHand}</td>
-                  <td className="px-5 py-3">
+                  <td className={`${cellPad} text-muted`}>{product.sku}</td>
+                  <td className={`${cellPad} text-muted`}>{product.category?.name ?? "-"}</td>
+                  <td className={`${cellPad} text-muted`}>{product.uom}</td>
+                  <td className={`${cellPad} text-foreground`}>{product.totalOnHand}</td>
+                  <td className={cellPad}>
                     <StockStatusBadge status={product.status} />
                   </td>
                 </tr>

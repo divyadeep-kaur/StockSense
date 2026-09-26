@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { Sidebar } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
 import { AssistantWidget } from "@/components/assistant-widget";
+import { AssistantProvider } from "@/components/assistant-context";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -15,13 +16,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex h-screen gap-3 overflow-hidden p-3">
-      <Sidebar userName={user.fullName} />
-      <div className="flex flex-1 flex-col gap-3 overflow-hidden">
-        <Topbar userName={user.fullName} />
-        <main className="flex-1 overflow-y-auto rounded-2xl px-6 py-6">{children}</main>
+    <AssistantProvider>
+      <div className="flex h-screen gap-3 overflow-hidden p-3">
+        <Sidebar userName={user.fullName} />
+        <div className="flex flex-1 flex-col gap-3 overflow-hidden">
+          <Topbar fullName={user.fullName} email={user.email} role={user.role} />
+          <main className="flex-1 overflow-y-auto rounded-2xl px-6 py-6">{children}</main>
+        </div>
+        <AssistantWidget />
       </div>
-      <AssistantWidget />
-    </div>
+    </AssistantProvider>
   );
 }

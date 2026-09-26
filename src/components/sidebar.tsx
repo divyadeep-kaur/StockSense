@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
-import { Button } from "@/components/ui";
+import { useLogoutConfirm, LogoutConfirmModal } from "@/components/logout-confirm";
 import {
   BoxIcon,
   ChevronDownIcon,
@@ -12,6 +12,7 @@ import {
   GridIcon,
   HistoryIcon,
   InboxIcon,
+  KanbanIcon,
   LogoutIcon,
   SettingsIcon,
   SlidersIcon,
@@ -135,6 +136,7 @@ export function Sidebar({ userName }: { userName: string }) {
         </div>
 
         <NavLink href="/move-history" icon={HistoryIcon} label="Move History" active={isActive("/move-history")} collapsed={collapsed} />
+        <NavLink href="/kanban" icon={KanbanIcon} label="Kanban Board" active={isActive("/kanban")} collapsed={collapsed} />
         <NavLink href="/warehouses" icon={WarehouseIcon} label="Warehouses" active={isActive("/warehouses")} collapsed={collapsed} />
         <NavLink href="/settings" icon={SettingsIcon} label="Settings" active={isActive("/settings")} collapsed={collapsed} />
       </nav>
@@ -174,16 +176,7 @@ function NavLink({
 }
 
 function LogoutButton({ collapsed }: { collapsed?: boolean }) {
-  const router = useRouter();
-  const [confirming, setConfirming] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  async function confirmLogout() {
-    setLoading(true);
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-    router.refresh();
-  }
+  const { confirming, setConfirming, loading, confirmLogout } = useLogoutConfirm();
 
   return (
     <>
@@ -198,27 +191,12 @@ function LogoutButton({ collapsed }: { collapsed?: boolean }) {
         {!collapsed && "Logout"}
       </button>
 
-      {confirming && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-sm rounded-2xl bg-surface p-6 text-center shadow-lg">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-danger-soft text-danger">
-              <LogoutIcon className="h-5 w-5" />
-            </div>
-            <h2 className="mt-4 text-lg font-semibold text-foreground">
-              Are you sure you want to logout?
-            </h2>
-            <p className="mt-1 text-sm text-muted">You&apos;ll need to sign in again to access your account.</p>
-            <div className="mt-6 flex gap-3">
-              <Button variant="secondary" className="flex-1" onClick={() => setConfirming(false)}>
-                Cancel
-              </Button>
-              <Button variant="danger" className="flex-1" disabled={loading} onClick={confirmLogout}>
-                {loading ? "Logging out..." : "Logout"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LogoutConfirmModal
+        confirming={confirming}
+        loading={loading}
+        onCancel={() => setConfirming(false)}
+        onConfirm={confirmLogout}
+      />
     </>
   );
 }

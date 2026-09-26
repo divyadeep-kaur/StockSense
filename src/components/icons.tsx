@@ -203,3 +203,30 @@ export const SendIcon = (p: SVGProps<SVGSVGElement>) => (
     <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
   </Svg>
 );
+
+export const KanbanIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M9 4v16M15 4v16" />
+    <path d="M6 8h.01M6 12h.01M12 8h.01M18 8h.01M18 12h.01M18 16h.01" />
+  </Svg>
+);
+
+export const CheckIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M20 6 9 17l-5-5" />
+  </Svg>
+);
+
+export const TrashIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M3 6h18" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+  </Svg>
+);
+
+export const FilterIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M4 5h16M7 12h10M10 19h4" />
+  </Svg>
+);
