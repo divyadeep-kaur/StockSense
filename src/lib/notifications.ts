@@ -143,10 +143,19 @@ async function buildCandidates(): Promise<Omit<NotificationItem, "read">[]> {
 
 export async function getNotificationsForUser(userId: string): Promise<{ items: NotificationItem[]; unreadCount: number }> {
   const candidates = await buildCandidates();
+  const candidateKeys = candidates.map((c) => c.key);
+
+  // Once a condition clears (e.g. a product is restocked), its old read/dismissed
+  // state is stale — drop it so the same key starting fresh later (e.g. going
+  // out of stock again) isn't silently suppressed by a dismissal from last time.
+  await prisma.notificationState.deleteMany({
+    where: candidateKeys.length > 0 ? { userId, key: { notIn: candidateKeys } } : { userId },
+  });
+
   if (candidates.length === 0) return { items: [], unreadCount: 0 };
 
   const states = await prisma.notificationState.findMany({
-    where: { userId, key: { in: candidates.map((c) => c.key) } },
+    where: { userId, key: { in: candidateKeys } },
   });
   const stateByKey = new Map(states.map((s) => [s.key, s]));
 

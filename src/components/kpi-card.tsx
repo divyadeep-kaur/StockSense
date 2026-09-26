@@ -29,10 +29,10 @@ export function KpiCard({
       >
         {icon}
       </div>
-      <div>
-        <p className="text-sm text-muted">{label}</p>
-        <div className="flex items-baseline gap-2">
-          <p className="text-2xl font-semibold text-foreground">{value}</p>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm text-muted">{label}</p>
+        <div className="flex flex-wrap items-baseline gap-x-2">
+          <p className="break-words text-2xl font-semibold text-foreground">{value}</p>
           {badge && <span className={`text-xs font-medium ${toneStyles[tone].split(" ")[1]}`}>{badge}</span>}
         </div>
         {trendPct !== undefined && trendPct !== null && (

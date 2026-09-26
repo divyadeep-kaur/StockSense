@@ -22,12 +22,12 @@ export async function moveKanbanCard(kind: KanbanKind, id: string, target: DocSt
     else if (target === "CANCELED") await cancelReceipt(id);
     else return { ok: false, error: "That move isn't supported for receipts." };
   } else if (kind === "DELIVERY") {
-    if (target === "READY" || target === "WAITING") await checkAvailability(id);
+    if (target === "READY") await checkAvailability(id);
     else if (target === "DONE") await validateDelivery(id);
     else if (target === "CANCELED") await cancelDelivery(id);
     else return { ok: false, error: "That move isn't supported for deliveries." };
   } else {
-    if (target === "READY" || target === "WAITING") await checkTransferAvailability(id);
+    if (target === "READY") await checkTransferAvailability(id);
     else if (target === "DONE") await validateTransfer(id);
     else if (target === "CANCELED") await cancelTransfer(id);
     else return { ok: false, error: "That move isn't supported for transfers." };

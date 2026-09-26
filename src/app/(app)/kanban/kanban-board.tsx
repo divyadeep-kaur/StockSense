@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { DocStatus } from "@prisma/client";
 import type { KanbanCard, KanbanKind } from "@/lib/kanban";
@@ -43,6 +43,9 @@ export function KanbanBoard({
 }) {
   const router = useRouter();
   const [cards, setCards] = useState(initialCards);
+  useEffect(() => {
+    setCards(initialCards);
+  }, [initialCards]);
   const [search, setSearch] = useState("");
   const [activeKinds, setActiveKinds] = useState<Set<KanbanKind>>(new Set(ALL_KINDS));
   const [warehouseId, setWarehouseId] = useState("");
