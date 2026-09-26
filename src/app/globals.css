@@ -20,11 +20,11 @@
   --info: #2563eb;
   --info-soft: #dbeafe;
 
-  --sidebar-bg: #0b0d12;
-  --sidebar-border: #1c1f27;
-  --sidebar-foreground: #b8bcc8;
+  --sidebar-bg: #15112c;
+  --sidebar-border: #2b2456;
+  --sidebar-foreground: #a9a5cf;
   --sidebar-foreground-active: #ffffff;
-  --sidebar-item-active: #1c1f2b;
+  --sidebar-item-active: #241e4d;
 }
 
 @theme inline {

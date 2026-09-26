@@ -167,14 +167,21 @@ export function StatusSegmentBar({
 
 const HEX_POINTS = "25,0 50,14.5 50,37.5 25,52 0,37.5 0,14.5";
 
+/** Deterministic integer hash (no transcendental math) so server and client render identical values. */
+function hashToUnitInterval(i: number) {
+  let x = (i * 2654435761) >>> 0;
+  x = Math.imul(x ^ (x >>> 16), 0x45d9f3b) >>> 0;
+  x = Math.imul(x ^ (x >>> 16), 0x45d9f3b) >>> 0;
+  x = (x ^ (x >>> 16)) >>> 0;
+  return x / 4294967296;
+}
+
 export function LocationHexGrid({ intensity }: { intensity: number }) {
   const cols = 7;
   const rows = 4;
   const cells = Array.from({ length: cols * rows }, (_, i) => {
-    const seed = Math.sin(i * 12.9898) * 43758.5453;
-    const noise = seed - Math.floor(seed);
-    const value = Math.min(1, Math.max(0, noise * 0.6 + intensity * 0.4));
-    return value;
+    const noise = hashToUnitInterval(i);
+    return Math.min(1, Math.max(0, noise * 0.6 + intensity * 0.4));
   });
 
   return (
