@@ -225,10 +225,8 @@ StockSense includes:
 * User registration
 * Login
 * Session-based authentication
-* OTP-based password reset
+* Email-based OTP password reset (see [Password Reset](#-password-reset) below)
 * Protected application routes
-
-If SMTP is not configured, password-reset OTPs are logged to the server console for development purposes.
 
 ---
 
@@ -377,6 +375,8 @@ npm install
 cp .env.example .env
 ```
 
+At minimum, set `RESEND_API_KEY` and `EMAIL_FROM` so password-reset OTP emails actually get delivered — see [Password Reset](#-password-reset) for the full setup.
+
 ### 4. Initialize the database
 
 ```bash
@@ -414,11 +414,58 @@ Password: password123
 
 ---
 
-# 🔑 Password Reset OTP
+# 🔑 Password Reset
 
-If `SMTP_HOST` is left blank in `.env`, OTP codes are printed to the server console instead of being sent by email.
+StockSense uses email-based OTP verification for password recovery, delivered through [Resend](https://resend.com).
 
-This allows the password-reset functionality to be tested without configuring an external mail server.
+```text
+Forgot Password
+   → Email
+   → 6-digit OTP
+   → OTP Verification
+   → New Password
+```
+
+### How it works
+
+1. **Forgot Password** — user enters their registered email on `/forgot-password`.
+2. **OTP generated** — a cryptographically secure 6-digit code (`crypto.randomInt`, never `Math.random()`) is created, hashed with bcrypt, and stored against that user with a 10-minute expiry. Only the hash is stored — never the raw code.
+3. **Email sent** — the OTP is emailed via Resend, with a subject of *"Your StockSense Password Reset OTP"*.
+4. **OTP Verification** — the user enters the code on a dedicated verification step. The server checks the code, expiry, and attempt count independently, without ever accepting the new password in the same request.
+5. **New Password** — once verified, the user sets a new password (8+ characters, upper + lower case, one special character). The OTP is single-use and is deleted the moment it's spent, so it can't be replayed.
+6. **Back to Login** — the flow ends on a plain success screen with a link back to `/login`; it does **not** auto-sign the user in.
+
+### Security details
+
+* OTPs are single-use, hashed (bcrypt), and expire after 10 minutes.
+* Up to 5 verification attempts per OTP — after that it's locked out (even the correct code is rejected) until a new one is requested.
+* Resend is rate-limited server-side to one send per 60 seconds per account, independent of the UI's own countdown.
+* The forgot-password endpoint always responds identically whether or not the email is registered, so it can't be used to enumerate accounts.
+* All auth endpoints (`forgot-password`, `verify-reset-otp`, `reset-password`) are additionally throttled per IP address.
+
+### Environment variables
+
+```env
+# Get a free key at https://resend.com/api-keys
+RESEND_API_KEY=your_resend_api_key
+
+# Must be onboarding@resend.dev unless you've verified your own domain in Resend
+EMAIL_FROM="StockSense <onboarding@resend.dev>"
+```
+
+### Setting it up
+
+1. Create a free account at [resend.com](https://resend.com) and generate an API key from **API Keys** in the dashboard.
+2. Add that key to `.env` as `RESEND_API_KEY`.
+3. Sender domain:
+   - **Quick start (no domain needed):** leave `EMAIL_FROM` as `StockSense <onboarding@resend.dev>`. Resend's shared sandbox sender works out of the box, but **only delivers to the email address you signed up to Resend with** — fine for solo testing, not for sending to arbitrary users.
+   - **To send OTPs to any registered user's real inbox** (required for a live multi-user demo): verify your own domain under **Domains** in the Resend dashboard (add the DNS records they give you), then set `EMAIL_FROM` to an address at that domain, e.g. `StockSense <noreply@yourdomain.com>`.
+4. Restart the dev server after editing `.env` — environment variables are only read at process start.
+5. Test it: go to `/forgot-password`, enter a registered account's email, and check that inbox (and Spam/Promotions) for the code.
+
+### Development fallback
+
+If `RESEND_API_KEY` is left blank, OTPs are printed to the server console instead of being emailed, clearly marked as `[StockSense][DEV FALLBACK — RESEND_API_KEY not set]`. This exists only so the flow is testable without any setup — it is **not** the intended behavior for a real demo, and the code will never claim an email was sent when it wasn't.
 
 ---
 

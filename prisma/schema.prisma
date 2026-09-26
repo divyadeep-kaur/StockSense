@@ -62,13 +62,15 @@ model NotificationState {
 }
 
 model PasswordResetOtp {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  codeHash  String
-  expiresAt DateTime
-  consumed  Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash   String
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumed   Boolean   @default(false)
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
 
   @@index([userId])
 }
