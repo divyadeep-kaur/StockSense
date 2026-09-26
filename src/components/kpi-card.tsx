@@ -5,11 +5,13 @@ export function KpiCard({
   value,
   icon,
   tone = "default",
+  badge,
 }: {
   label: string;
   value: number | string;
   icon: React.ReactNode;
   tone?: "default" | "warning" | "info" | "success";
+  badge?: string;
 }) {
   const toneStyles = {
     default: "bg-accent-soft text-accent",
@@ -25,7 +27,10 @@ export function KpiCard({
       </div>
       <div>
         <p className="text-sm text-muted">{label}</p>
-        <p className="text-2xl font-semibold text-foreground">{value}</p>
+        <div className="flex items-baseline gap-2">
+          <p className="text-2xl font-semibold text-foreground">{value}</p>
+          {badge && <span className={`text-xs font-medium ${toneStyles[tone].split(" ")[1]}`}>{badge}</span>}
+        </div>
       </div>
     </Card>
   );
