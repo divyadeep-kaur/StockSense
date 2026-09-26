@@ -75,7 +75,10 @@ export default async function DashboardPage() {
   const totalOnHandAcrossLocations = topLocations.reduce((sum, l) => sum + l.totalOnHand, 0) || 1;
 
   return (
-    <div className="space-y-6">
+    <div
+      className="space-y-6"
+      style={{ "--accent": "#1D4ED8", "--accent-soft": "#DBEAFE" } as React.CSSProperties}
+    >
       <ScrollReveal>
         <h1 className="font-heading text-4xl text-foreground">Dashboard</h1>
         <p className="mt-1 text-sm text-muted">
@@ -319,8 +322,8 @@ export default async function DashboardPage() {
               centerValue={kpis.levels.total}
               segments={[
                 { label: "In Stock", value: kpis.levels.inStock, color: "var(--accent)" },
-                { label: "Low Stock", value: kpis.levels.lowStock, color: "#60A5FA" },
-                { label: "Out of Stock", value: kpis.levels.outOfStock, color: "#BFDBFE" },
+                { label: "Low Stock", value: kpis.levels.lowStock, color: "#3B82F6" },
+                { label: "Out of Stock", value: kpis.levels.outOfStock, color: "#93C5FD" },
               ]}
             />
           </Card>
