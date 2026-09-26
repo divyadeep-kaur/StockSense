@@ -66,14 +66,14 @@ export function Sidebar({ userName }: { userName: string }) {
 
   return (
     <aside
-      className={`relative flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar-bg transition-[width] duration-200 ${
+      className={`relative flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar-bg shadow-[6px_0_30px_-12px_rgba(79,70,229,0.25)] backdrop-blur-xl backdrop-saturate-150 transition-[width] duration-200 ${
         collapsed ? "w-[76px]" : "w-64"
       }`}
     >
       <button
         onClick={toggleCollapsed}
         title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-sidebar-bg text-sidebar-foreground shadow-sm hover:text-sidebar-foreground-active"
+        className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-surface/80 text-sidebar-foreground shadow-sm backdrop-blur-xl hover:text-sidebar-foreground-active"
       >
         <ChevronRightIcon className={`h-3.5 w-3.5 transition-transform ${collapsed ? "" : "rotate-180"}`} />
       </button>
@@ -88,7 +88,7 @@ export function Sidebar({ userName }: { userName: string }) {
             </svg>
           </span>
         ) : (
-          <Logo className="[&_span]:text-sidebar-foreground-active" />
+          <Logo />
         )}
       </div>
 

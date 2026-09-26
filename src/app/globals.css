@@ -20,11 +20,11 @@
   --info: #2563eb;
   --info-soft: #dbeafe;
 
-  --sidebar-bg: #15112c;
-  --sidebar-border: #2b2456;
-  --sidebar-foreground: #a9a5cf;
-  --sidebar-foreground-active: #ffffff;
-  --sidebar-item-active: #241e4d;
+  --sidebar-bg: rgba(238, 242, 255, 0.55);
+  --sidebar-border: rgba(165, 180, 252, 0.45);
+  --sidebar-foreground: #57567d;
+  --sidebar-foreground-active: #4338ca;
+  --sidebar-item-active: rgba(79, 70, 229, 0.09);
 }
 
 @theme inline {
@@ -57,7 +57,11 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(650px circle at 8% 8%, rgba(199, 210, 254, 0.4), transparent 60%),
+    radial-gradient(550px circle at 92% 25%, rgba(191, 219, 254, 0.32), transparent 60%),
+    var(--background);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
