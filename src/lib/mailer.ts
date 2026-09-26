@@ -5,9 +5,11 @@ let transporter: ReturnType<typeof nodemailer.createTransport> | null = null;
 function getTransporter() {
   if (!process.env.SMTP_HOST) return null;
   if (!transporter) {
+    const port = Number(process.env.SMTP_PORT ?? 587);
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT ?? 587),
+      port,
+      secure: port === 465,
       auth: process.env.SMTP_USER
         ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
         : undefined,
