@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/logo";
 import { useLogoutConfirm, LogoutConfirmModal } from "@/components/logout-confirm";
+import { useMobileSidebar } from "@/components/mobile-sidebar-context";
 import {
   BoxIcon,
   ChevronDownIcon,
@@ -21,6 +22,7 @@ import {
   TruckIcon,
   UserIcon,
   WarehouseIcon,
+  XIcon,
 } from "@/components/icons";
 
 type NavItem = {
@@ -40,8 +42,13 @@ const COLLAPSED_KEY = "stocksense_sidebar_collapsed";
 
 export function Sidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
+  const { open: mobileOpen, setOpen: setMobileOpen } = useMobileSidebar();
   const [operationsOpen, setOperationsOpen] = useState(pathname.startsWith("/operations"));
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname, setMobileOpen]);
 
   useEffect(() => {
     try {
@@ -64,29 +71,43 @@ export function Sidebar({ userName }: { userName: string }) {
   }
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  const effectiveCollapsed = collapsed && !mobileOpen;
 
   return (
-    <aside
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(238, 242, 255, 0.82), rgba(238, 242, 255, 0.82)), url(/images/sidebar-bg.webp)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-      className={`relative flex h-full shrink-0 flex-col rounded-2xl border border-sidebar-border shadow-[0_8px_30px_-12px_rgba(79,70,229,0.25)] backdrop-blur-xl backdrop-saturate-150 transition-[width] duration-200 ${
-        collapsed ? "w-[76px]" : "w-64"
-      }`}
-    >
-      <button
-        onClick={toggleCollapsed}
-        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-surface/80 text-sidebar-foreground shadow-sm backdrop-blur-xl hover:text-sidebar-foreground-active"
+    <>
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+        />
+      )}
+      <aside
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(238, 242, 255, 0.82), rgba(238, 242, 255, 0.82)), url(/images/sidebar-bg.webp)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+        className={`fixed inset-y-3 left-3 z-50 flex w-64 flex-col rounded-2xl border border-sidebar-border shadow-[0_8px_30px_-12px_rgba(79,70,229,0.25)] backdrop-blur-xl backdrop-saturate-150 transition-transform duration-200 lg:static lg:inset-auto lg:z-auto lg:h-full lg:shrink-0 lg:translate-x-0 lg:transition-[width] ${
+          mobileOpen ? "translate-x-0" : "-translate-x-[calc(100%+2rem)]"
+        } ${collapsed ? "lg:w-[76px]" : "lg:w-64"}`}
       >
-        <ChevronRightIcon className={`h-3.5 w-3.5 transition-transform ${collapsed ? "" : "rotate-180"}`} />
-      </button>
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="absolute -right-3 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-surface/80 text-sidebar-foreground shadow-sm backdrop-blur-xl hover:text-sidebar-foreground-active lg:hidden"
+        >
+          <XIcon className="h-3.5 w-3.5" />
+        </button>
+        <button
+          onClick={toggleCollapsed}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="absolute -right-3 top-7 z-10 hidden h-6 w-6 items-center justify-center rounded-full border border-sidebar-border bg-surface/80 text-sidebar-foreground shadow-sm backdrop-blur-xl hover:text-sidebar-foreground-active lg:flex"
+        >
+          <ChevronRightIcon className={`h-3.5 w-3.5 transition-transform ${collapsed ? "" : "rotate-180"}`} />
+        </button>
 
-      <div className={`flex items-center px-5 py-5 ${collapsed ? "justify-center px-0" : ""}`}>
-        {collapsed ? (
+      <div className={`flex items-center px-5 py-5 ${effectiveCollapsed ? "justify-center px-0" : ""}`}>
+        {effectiveCollapsed ? (
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2 L21 7 L21 17 L12 22 L3 17 L3 7 Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
@@ -100,11 +121,11 @@ export function Sidebar({ userName }: { userName: string }) {
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden px-3">
-        <NavLink href="/dashboard" icon={GridIcon} label="Dashboard" active={isActive("/dashboard")} collapsed={collapsed} />
-        <NavLink href="/products" icon={BoxIcon} label="Products" active={isActive("/products")} collapsed={collapsed} />
+        <NavLink href="/dashboard" icon={GridIcon} label="Dashboard" active={isActive("/dashboard")} collapsed={effectiveCollapsed} />
+        <NavLink href="/products" icon={BoxIcon} label="Products" active={isActive("/products")} collapsed={effectiveCollapsed} />
 
         <div>
-          {collapsed ? (
+          {effectiveCollapsed ? (
             <Link
               href="/operations/receipts"
               title="Operations"
@@ -141,17 +162,18 @@ export function Sidebar({ userName }: { userName: string }) {
           )}
         </div>
 
-        <NavLink href="/move-history" icon={HistoryIcon} label="Move History" active={isActive("/move-history")} collapsed={collapsed} />
-        <NavLink href="/kanban" icon={KanbanIcon} label="Kanban Board" active={isActive("/kanban")} collapsed={collapsed} />
-        <NavLink href="/warehouses" icon={WarehouseIcon} label="Warehouses" active={isActive("/warehouses")} collapsed={collapsed} />
-        <NavLink href="/settings" icon={SettingsIcon} label="Settings" active={isActive("/settings")} collapsed={collapsed} />
+        <NavLink href="/move-history" icon={HistoryIcon} label="Move History" active={isActive("/move-history")} collapsed={effectiveCollapsed} />
+        <NavLink href="/kanban" icon={KanbanIcon} label="Kanban Board" active={isActive("/kanban")} collapsed={effectiveCollapsed} />
+        <NavLink href="/warehouses" icon={WarehouseIcon} label="Warehouses" active={isActive("/warehouses")} collapsed={effectiveCollapsed} />
+        <NavLink href="/settings" icon={SettingsIcon} label="Settings" active={isActive("/settings")} collapsed={effectiveCollapsed} />
       </nav>
 
       <div className="border-t border-sidebar-border px-3 py-3">
-        <NavLink href="/profile" icon={UserIcon} label={userName} active={isActive("/profile")} collapsed={collapsed} />
-        <LogoutButton collapsed={collapsed} />
+        <NavLink href="/profile" icon={UserIcon} label={userName} active={isActive("/profile")} collapsed={effectiveCollapsed} />
+        <LogoutButton collapsed={effectiveCollapsed} />
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 
