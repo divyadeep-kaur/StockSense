@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui";
 import { AddCategoryForm } from "./add-category-form";
 import { AddWarehouseForm } from "./add-warehouse-form";
+import { ResetDataSection } from "./reset-data-section";
 
 export default async function SettingsPage() {
   const [categories, warehouses] = await Promise.all([
@@ -102,6 +103,8 @@ export default async function SettingsPage() {
           <AddCategoryForm />
         </Card>
       </div>
+
+      <ResetDataSection />
     </div>
   );
 }
