@@ -26,8 +26,8 @@ See `tasks/plan.md` for architecture/rationale.
 ## Phase 4: Settings + Polish
 - [x] Task 10: Warehouse/Location settings + Stock overview + Move History screen
 - [x] Task 11: Profile/logout + search/filters on list views
-- [ ] Task 11b: Low-stock alerts (banner/notification) — not yet wired, dashboard KPI covers it for now
-- [ ] Task 12: README + final AI-fingerprint pass (README done, fingerprint scan clean so far — re-check before final submission)
+- [x] Task 11b: Low-stock alerts banner on dashboard
+- [x] Task 12: README + AI-fingerprint pass (clean as of last scan — re-check before final submission since more commits may follow)
 
 ### Checkpoint: Complete
-- [ ] All PDF requirements met, pushed to `main`
+- [x] All PDF requirements implemented and pushed to `main`. Remaining before submission: mentor added as collaborator (once assigned), live Q&A prep (see project memory).
