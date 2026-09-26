@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, createSessionCookie } from "@/lib/auth";
+import { verifyPasswordOtp } from "@/lib/otp";
 
 const schema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid email"),
@@ -30,27 +30,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: INVALID_OR_EXPIRED }, { status: 400 });
   }
 
-  const otp = await prisma.passwordResetOtp.findFirst({
-    where: { userId: user.id, consumed: false, expiresAt: { gt: new Date() } },
-    orderBy: { createdAt: "desc" },
-  });
-
-  if (!otp) {
-    return NextResponse.json({ error: INVALID_OR_EXPIRED }, { status: 400 });
-  }
-
-  const valid = await bcrypt.compare(code, otp.codeHash);
+  const valid = await verifyPasswordOtp(user.id, code);
   if (!valid) {
     return NextResponse.json({ error: INVALID_OR_EXPIRED }, { status: 400 });
   }
 
   const passwordHash = await hashPassword(newPassword);
-
-  await prisma.$transaction([
-    prisma.user.update({ where: { id: user.id }, data: { passwordHash } }),
-    prisma.passwordResetOtp.update({ where: { id: otp.id }, data: { consumed: true } }),
-  ]);
-
+  await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
   await createSessionCookie(user.id);
 
   return NextResponse.json({ ok: true });
