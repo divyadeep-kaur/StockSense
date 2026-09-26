@@ -109,7 +109,7 @@ export default async function DashboardPage() {
         </ScrollReveal>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <ScrollReveal delay={0}>
           <KpiCard
             label="Inventory Value"
@@ -151,6 +151,15 @@ export default async function DashboardPage() {
             icon={<TruckIcon />}
             tone="success"
             badge={badges.deliveriesDueToday > 0 ? `${badges.deliveriesDueToday} due today` : undefined}
+          />
+        </ScrollReveal>
+        <ScrollReveal delay={300}>
+          <KpiCard
+            label="Internal Transfers"
+            value={kpis.transfersScheduled}
+            icon={<TransferIcon />}
+            tone="default"
+            badge={badges.transfersDueToday > 0 ? `${badges.transfersDueToday} due today` : undefined}
           />
         </ScrollReveal>
       </div>

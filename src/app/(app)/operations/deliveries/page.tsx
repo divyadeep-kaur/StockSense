@@ -1,7 +1,16 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Button, Card, EmptyState, Select, StatusBadge } from "@/components/ui";
+import { Button, Card, CheckboxFilterGroup, EmptyState, StatusBadge } from "@/components/ui";
 import { PlusIcon, SearchIcon } from "@/components/icons";
+import { toArray } from "@/lib/params";
+
+const STATUS_OPTIONS = [
+  { value: "DRAFT", label: "Draft" },
+  { value: "WAITING", label: "Waiting" },
+  { value: "READY", label: "Ready" },
+  { value: "DONE", label: "Done" },
+  { value: "CANCELED", label: "Canceled" },
+];
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(date);
@@ -10,14 +19,15 @@ function formatDate(date: Date) {
 export default async function DeliveriesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string | string[] }>;
 }) {
   const params = await searchParams;
+  const statuses = toArray(params.status);
 
   const deliveries = await prisma.deliveryOrder.findMany({
     where: {
       AND: [
-        params.status ? { status: params.status as never } : {},
+        statuses.length > 0 ? { status: { in: statuses as never[] } } : {},
         params.q
           ? {
               OR: [
@@ -59,14 +69,7 @@ export default async function DeliveriesPage({
               className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
             />
           </div>
-          <Select name="status" defaultValue={params.status} className="w-44">
-            <option value="">All Status</option>
-            <option value="DRAFT">Draft</option>
-            <option value="WAITING">Waiting</option>
-            <option value="READY">Ready</option>
-            <option value="DONE">Done</option>
-            <option value="CANCELED">Canceled</option>
-          </Select>
+          <CheckboxFilterGroup name="status" options={STATUS_OPTIONS} selected={statuses} />
           <Button type="submit" variant="secondary">
             Filter
           </Button>

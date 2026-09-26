@@ -26,7 +26,7 @@ export async function getDashboardKpis() {
     getStockLevelSummary(),
     prisma.receipt.count({ where: { status: { in: ["DRAFT", "READY"] } } }),
     prisma.deliveryOrder.count({ where: { status: { in: ["DRAFT", "WAITING", "READY"] } } }),
-    prisma.internalTransfer.count({ where: { status: { in: ["DRAFT", "READY"] } } }),
+    prisma.internalTransfer.count({ where: { status: { in: ["DRAFT", "WAITING", "READY"] } } }),
   ]);
 
   return {
@@ -262,16 +262,19 @@ export async function getKpiBadges() {
   const todayStart = startOfDay(new Date());
   const weekAgo = daysAgo(6);
 
-  const [newProductsThisWeek, receiptsDueToday, deliveriesDueToday, outOfStock] = await Promise.all([
+  const [newProductsThisWeek, receiptsDueToday, deliveriesDueToday, transfersDueToday, outOfStock] = await Promise.all([
     prisma.product.count({ where: { createdAt: { gte: weekAgo } } }),
     prisma.receipt.count({ where: { scheduleDate: { gte: todayStart }, status: { in: ["DRAFT", "READY"] } } }),
     prisma.deliveryOrder.count({
       where: { scheduleDate: { gte: todayStart }, status: { in: ["DRAFT", "WAITING", "READY"] } },
     }),
+    prisma.internalTransfer.count({
+      where: { scheduleDate: { gte: todayStart }, status: { in: ["DRAFT", "WAITING", "READY"] } },
+    }),
     getStockLevelSummary().then((s) => s.outOfStock),
   ]);
 
-  return { newProductsThisWeek, receiptsDueToday, deliveriesDueToday, outOfStock };
+  return { newProductsThisWeek, receiptsDueToday, deliveriesDueToday, transfersDueToday, outOfStock };
 }
 
 const DOC_TYPE_LABEL: Record<string, string> = {

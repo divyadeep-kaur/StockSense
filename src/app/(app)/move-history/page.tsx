@@ -1,7 +1,15 @@
 import { prisma } from "@/lib/prisma";
-import { Card, EmptyState, Select, StatusBadge } from "@/components/ui";
+import { Card, CheckboxFilterGroup, EmptyState, StatusBadge } from "@/components/ui";
 import { SearchIcon } from "@/components/icons";
 import { Button } from "@/components/ui";
+import { toArray } from "@/lib/params";
+
+const TYPE_OPTIONS = [
+  { value: "RECEIPT", label: "Receipt" },
+  { value: "DELIVERY", label: "Delivery" },
+  { value: "TRANSFER", label: "Transfer" },
+  { value: "ADJUSTMENT", label: "Adjustment" },
+];
 
 const DOC_TYPE_LABEL: Record<string, string> = {
   RECEIPT: "Receipt",
@@ -23,14 +31,15 @@ function formatDate(date: Date) {
 export default async function MoveHistoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; type?: string }>;
+  searchParams: Promise<{ q?: string; type?: string | string[] }>;
 }) {
   const params = await searchParams;
+  const types = toArray(params.type);
 
   const moves = await prisma.stockMove.findMany({
     where: {
       AND: [
-        params.type ? { docType: params.type as never } : {},
+        types.length > 0 ? { docType: { in: types as never[] } } : {},
         params.q
           ? {
               OR: [
@@ -53,7 +62,7 @@ export default async function MoveHistoryPage({
         <p className="mt-1 text-sm text-muted">Every stock movement, in one ledger.</p>
       </div>
 
-      <Card className="p-4">
+      <Card className="space-y-3 p-4">
         <form className="flex flex-wrap items-center gap-3" method="get">
           <div className="relative flex-1 min-w-[220px]">
             <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
@@ -65,13 +74,7 @@ export default async function MoveHistoryPage({
               className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
             />
           </div>
-          <Select name="type" defaultValue={params.type} className="w-44">
-            <option value="">All Types</option>
-            <option value="RECEIPT">Receipt</option>
-            <option value="DELIVERY">Delivery</option>
-            <option value="TRANSFER">Transfer</option>
-            <option value="ADJUSTMENT">Adjustment</option>
-          </Select>
+          <CheckboxFilterGroup name="type" options={TYPE_OPTIONS} selected={types} />
           <Button type="submit" variant="secondary">
             Filter
           </Button>

@@ -8,7 +8,7 @@ export function classifyStock(totalOnHand: number, minStockQty: number): StockSt
   return "IN_STOCK";
 }
 
-export async function listProductsWithStock(params?: { search?: string; categoryId?: string }) {
+export async function listProductsWithStock(params?: { search?: string; categoryIds?: string[] }) {
   const products = await prisma.product.findMany({
     where: {
       AND: [
@@ -20,7 +20,7 @@ export async function listProductsWithStock(params?: { search?: string; category
               ],
             }
           : {},
-        params?.categoryId ? { categoryId: params.categoryId } : {},
+        params?.categoryIds && params.categoryIds.length > 0 ? { categoryId: { in: params.categoryIds } } : {},
       ],
     },
     include: { category: true, stockItems: true },

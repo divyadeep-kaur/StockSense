@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { listProductsWithStock } from "@/lib/products";
-import { Button, Card, EmptyState, Select, StockStatusBadge } from "@/components/ui";
+import { Button, Card, CheckboxFilterGroup, EmptyState, StockStatusBadge } from "@/components/ui";
 import { PlusIcon, SearchIcon } from "@/components/icons";
+import { toArray } from "@/lib/params";
 
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string | string[] }>;
 }) {
   const params = await searchParams;
+  const categoryIds = toArray(params.category);
   const [products, categories] = await Promise.all([
-    listProductsWithStock({ search: params.q, categoryId: params.category }),
+    listProductsWithStock({ search: params.q, categoryIds }),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
 
@@ -42,14 +44,11 @@ export default async function ProductsPage({
               className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40"
             />
           </div>
-          <Select name="category" defaultValue={params.category} className="w-48">
-            <option value="">All Categories</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
+          <CheckboxFilterGroup
+            name="category"
+            options={categories.map((c) => ({ value: c.id, label: c.name }))}
+            selected={categoryIds}
+          />
           <Button type="submit" variant="secondary">
             Filter
           </Button>

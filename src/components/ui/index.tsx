@@ -103,6 +103,36 @@ export function StockStatusBadge({ status }: { status: string }) {
   );
 }
 
+export function CheckboxFilterGroup({
+  name,
+  options,
+  selected,
+}: {
+  name: string;
+  options: Array<{ value: string; label: string }>;
+  selected: string[];
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((opt) => (
+        <label
+          key={opt.value}
+          className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 py-1.5 text-sm text-foreground transition-colors hover:border-accent/50 has-[:checked]:border-accent has-[:checked]:bg-accent-soft has-[:checked]:text-accent"
+        >
+          <input
+            type="checkbox"
+            name={name}
+            value={opt.value}
+            defaultChecked={selected.includes(opt.value)}
+            className="h-3.5 w-3.5 rounded border-border accent-accent"
+          />
+          {opt.label}
+        </label>
+      ))}
+    </div>
+  );
+}
+
 export function Skeleton({ className }: { className?: string }) {
   return <div className={cx("animate-pulse-soft rounded-lg bg-border/70", className)} />;
 }
