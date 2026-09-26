@@ -196,3 +196,10 @@ export const BellIcon = (p: SVGProps<SVGSVGElement>) => (
     <path d="M10 21a2 2 0 0 0 4 0" />
   </Svg>
 );
+
+export const SendIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M22 2 11 13" />
+    <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
+  </Svg>
+);
