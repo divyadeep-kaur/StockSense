@@ -135,6 +135,13 @@ export const PlusIcon = (p: SVGProps<SVGSVGElement>) => (
   </Svg>
 );
 
+export const DollarIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}>
+    <path d="M12 2v20" />
+    <path d="M17 6.5c0-1.9-2.2-3-5-3s-5 1.2-5 3 2.2 2.7 5 3 5 1.1 5 3-2.2 3-5 3-5-1.1-5-3" />
+  </Svg>
+);
+
 export const ArrowUpRightIcon = (p: SVGProps<SVGSVGElement>) => (
   <Svg {...p}>
     <path d="M7 17 17 7M8 7h9v9" />

@@ -95,6 +95,70 @@ export async function getWeeklyMovementTrend() {
   return days.map(({ date, ...rest }) => rest);
 }
 
+/** Current total value of on-hand stock (cost basis), and how it's changed over the trailing 7 days. */
+export async function getInventoryValueSummary() {
+  const since = daysAgo(6);
+
+  const [stockItems, recentMoves] = await Promise.all([
+    prisma.stockItem.findMany({ select: { onHand: true, product: { select: { costPerUnit: true } } } }),
+    prisma.stockMove.findMany({
+      where: { date: { gte: since } },
+      select: { quantity: true, product: { select: { costPerUnit: true } } },
+    }),
+  ]);
+
+  const currentValue = stockItems.reduce((sum, item) => sum + item.onHand * (item.product.costPerUnit ?? 0), 0);
+  const valueMovedThisWeek = recentMoves.reduce(
+    (sum, m) => sum + m.quantity * (m.product.costPerUnit ?? 0),
+    0
+  );
+  const valueAWeekAgo = currentValue - valueMovedThisWeek;
+  const changePct = valueAWeekAgo <= 0 ? null : Math.round(((currentValue - valueAWeekAgo) / valueAWeekAgo) * 100);
+
+  return { currentValue: Math.round(currentValue), changePct };
+}
+
+/** Cost-basis value received (in) vs shipped (out) per day, for the trailing 7 days (oldest first). */
+export async function getWeeklyValueComparison() {
+  const thisWeekStart = daysAgo(6);
+  const lastWeekStart = daysAgo(13);
+
+  const [thisWeek, lastWeek] = await Promise.all([
+    prisma.stockMove.findMany({
+      where: { date: { gte: thisWeekStart } },
+      select: { date: true, quantity: true, product: { select: { costPerUnit: true } } },
+    }),
+    prisma.stockMove.findMany({
+      where: { date: { gte: lastWeekStart, lt: thisWeekStart } },
+      select: { date: true, quantity: true, product: { select: { costPerUnit: true } } },
+    }),
+  ]);
+
+  const bucket = (moves: { date: Date; quantity: number; product: { costPerUnit: number | null } }[], start: Date) => {
+    const totals = new Array(7).fill(0);
+    for (const m of moves) {
+      const dayIndex = Math.floor((startOfDay(m.date).getTime() - start.getTime()) / 86400000);
+      if (dayIndex >= 0 && dayIndex < 7) totals[dayIndex] += Math.abs(m.quantity) * (m.product.costPerUnit ?? 0);
+    }
+    return totals;
+  };
+
+  const current = bucket(thisWeek, thisWeekStart);
+  const previous = bucket(lastWeek, lastWeekStart);
+
+  const currentTotal = Math.round(current.reduce((a, b) => a + b, 0));
+  const previousTotal = Math.round(previous.reduce((a, b) => a + b, 0));
+  const changePct = previousTotal === 0 ? null : Math.round(((currentTotal - previousTotal) / previousTotal) * 100);
+
+  return {
+    currentTotal,
+    previousTotal,
+    changePct,
+    series: current.map((value, i) => ({ current: Math.round(value), previous: Math.round(previous[i]) })),
+    rangeLabel: `${thisWeekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}`,
+  };
+}
+
 /** How many stock movements happened on each weekday over the trailing 7 days. */
 export async function getWeekdayActivity() {
   const since = daysAgo(6);

@@ -2,14 +2,15 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import {
   getDashboardKpis,
+  getInventoryValueSummary,
   getKpiBadges,
   getLocationStockRanking,
   getLowStockAlerts,
   getOperationsStatusBreakdown,
   getRecentOperations,
   getWeekdayActivity,
-  getWeeklyComparison,
   getWeeklyMovementTrend,
+  getWeeklyValueComparison,
 } from "@/lib/dashboard";
 import { KpiCard } from "@/components/kpi-card";
 import { DonutChart } from "@/components/donut-chart";
@@ -25,6 +26,7 @@ import {
   ArrowUpRightIcon,
   BellIcon,
   BoxIcon,
+  DollarIcon,
   InboxIcon,
   SlidersIcon,
   TransferIcon,
@@ -37,27 +39,42 @@ function formatDate(date: Date) {
   );
 }
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+}
+
 export default async function DashboardPage() {
   const user = await getCurrentUser();
-  const [kpis, badges, recentOps, lowStockAlerts, movementTrend, weekdayActivity, weeklyComparison, statusBreakdown, topLocations] =
-    await Promise.all([
-      getDashboardKpis(),
-      getKpiBadges(),
-      getRecentOperations(),
-      getLowStockAlerts(),
-      getWeeklyMovementTrend(),
-      getWeekdayActivity(),
-      getWeeklyComparison(),
-      getOperationsStatusBreakdown(),
-      getLocationStockRanking(),
-    ]);
+  const [
+    kpis,
+    badges,
+    recentOps,
+    lowStockAlerts,
+    movementTrend,
+    weekdayActivity,
+    weeklyValue,
+    statusBreakdown,
+    topLocations,
+    inventoryValue,
+  ] = await Promise.all([
+    getDashboardKpis(),
+    getKpiBadges(),
+    getRecentOperations(),
+    getLowStockAlerts(),
+    getWeeklyMovementTrend(),
+    getWeekdayActivity(),
+    getWeeklyValueComparison(),
+    getOperationsStatusBreakdown(),
+    getLocationStockRanking(),
+    getInventoryValueSummary(),
+  ]);
 
   const totalOnHandAcrossLocations = topLocations.reduce((sum, l) => sum + l.totalOnHand, 0) || 1;
 
   return (
     <div className="animate-reveal space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Dashboard</h1>
+        <h1 className="font-heading text-4xl text-foreground">Dashboard</h1>
         <p className="mt-1 text-sm text-muted">
           What&apos;s happening with your inventory today, {user?.fullName.split(" ")[0]}.
         </p>
@@ -84,7 +101,13 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <KpiCard
+          label="Inventory Value"
+          value={formatCurrency(inventoryValue.currentValue)}
+          icon={<DollarIcon />}
+          trendPct={inventoryValue.changePct}
+        />
         <KpiCard
           label="Total Products"
           value={kpis.totalProducts}
@@ -117,7 +140,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">Stock Movement</h2>
+            <h2 className="font-heading text-2xl text-foreground">Stock Movement</h2>
             <span className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted">
               Last 7 days
             </span>
@@ -141,7 +164,7 @@ export default async function DashboardPage() {
 
         <Card className="p-5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">Locations</h2>
+            <h2 className="font-heading text-2xl text-foreground">Locations</h2>
             <Link href="/warehouses" className="text-muted hover:text-accent">
               <ArrowUpRightIcon className="h-4 w-4" />
             </Link>
@@ -163,7 +186,7 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="p-5">
-          <h2 className="mb-4 text-base font-semibold text-foreground">Order Status</h2>
+          <h2 className="mb-4 font-heading text-2xl text-foreground">Order Status</h2>
           <Link
             href="/move-history"
             className="mb-4 flex items-center justify-between rounded-xl bg-accent px-4 py-3 text-white"
@@ -180,7 +203,7 @@ export default async function DashboardPage() {
 
         <Card className="p-5">
           <div className="mb-1 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">Weekly Activity</h2>
+            <h2 className="font-heading text-2xl text-foreground">Weekly Activity</h2>
           </div>
           <p className="mb-3 text-sm text-muted">
             Average{" "}
@@ -194,18 +217,19 @@ export default async function DashboardPage() {
 
         <Card className="p-5">
           <div className="mb-1 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">Weekly Summary</h2>
-            <span className="text-xs text-muted">{weeklyComparison.rangeLabel}</span>
+            <h2 className="font-heading text-2xl text-foreground">Weekly Summary</h2>
+            <span className="text-xs text-muted">{weeklyValue.rangeLabel}</span>
           </div>
+          <p className="text-xs text-muted">Stock value moved (cost basis)</p>
           <div className="mb-3 flex items-center gap-2">
-            <p className="text-2xl font-semibold text-foreground">{weeklyComparison.currentTotal}</p>
-            {weeklyComparison.changePct !== null && (
-              <span className={`text-sm font-medium ${weeklyComparison.changePct >= 0 ? "text-success" : "text-danger"}`}>
-                {weeklyComparison.changePct >= 0 ? "▲" : "▼"} {Math.abs(weeklyComparison.changePct)}%
+            <p className="text-2xl font-semibold text-foreground">{formatCurrency(weeklyValue.currentTotal)}</p>
+            {weeklyValue.changePct !== null && (
+              <span className={`text-sm font-medium ${weeklyValue.changePct >= 0 ? "text-success" : "text-danger"}`}>
+                {weeklyValue.changePct >= 0 ? "▲" : "▼"} {Math.abs(weeklyValue.changePct)}%
               </span>
             )}
           </div>
-          <WeeklyTrendLine series={weeklyComparison.series} />
+          <WeeklyTrendLine series={weeklyValue.series} />
           <div className="mt-2 flex gap-4 text-xs text-muted">
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-accent" /> This week
@@ -220,7 +244,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="p-5 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-foreground">Recent Operations</h2>
+            <h2 className="font-heading text-2xl text-foreground">Recent Operations</h2>
           </div>
           <table className="w-full text-left text-sm">
             <thead>
@@ -261,7 +285,7 @@ export default async function DashboardPage() {
         </Card>
 
         <Card className="p-5">
-          <h2 className="mb-4 text-base font-semibold text-foreground">Stock Levels</h2>
+          <h2 className="mb-4 font-heading text-2xl text-foreground">Stock Levels</h2>
           <DonutChart
             centerLabel="Total Products"
             centerValue={kpis.levels.total}

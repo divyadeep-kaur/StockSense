@@ -14,11 +14,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen gap-3 overflow-hidden p-3">
       <Sidebar userName={user.fullName} />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col gap-3 overflow-hidden">
         <Topbar userName={user.fullName} />
-        <main className="flex-1 overflow-y-auto px-6 py-6">{children}</main>
+        <main className="flex-1 overflow-y-auto rounded-2xl px-6 py-6">{children}</main>
       </div>
     </div>
   );

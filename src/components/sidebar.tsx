@@ -66,7 +66,7 @@ export function Sidebar({ userName }: { userName: string }) {
 
   return (
     <aside
-      className={`relative flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar-bg shadow-[6px_0_30px_-12px_rgba(79,70,229,0.25)] backdrop-blur-xl backdrop-saturate-150 transition-[width] duration-200 ${
+      className={`relative flex h-full shrink-0 flex-col rounded-2xl border border-sidebar-border bg-sidebar-bg shadow-[0_8px_30px_-12px_rgba(79,70,229,0.25)] backdrop-blur-xl backdrop-saturate-150 transition-[width] duration-200 ${
         collapsed ? "w-[76px]" : "w-64"
       }`}
     >
